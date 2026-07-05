@@ -30,3 +30,27 @@ spec:
         if [ -d "${WORKSPACE_SOURCE_PATH}" ]; then
           rm -rf "${WORKSPACE_SOURCE_PATH:?}/"*
         fi
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: pytest
+
+spec:
+  description: Run unit tests using pytest
+
+  workspaces:
+    - name: source
+
+  steps:
+    - name: test
+      image: python:3.9-slim
+      workingDir: $(workspaces.source.path)
+
+      env:
+        - name: PYTHONPATH
+          value: $(workspaces.source.path)
+
+      script: |
+        pip install -r requirements.txt
+        pytest -v
